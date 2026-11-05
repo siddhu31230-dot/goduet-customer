@@ -31,6 +31,7 @@ interface CartContextType {
   needCutlery: boolean;
   deliveryNotes: string;
   bill: BillSummary;
+  addItem: (item: any) => void;
   addMenuItem: (item: MenuItem, restaurant: Restaurant) => { success: boolean; message?: string };
   addFreshItem: (product: FreshProduct, quantity?: number) => void;
   updateQuantity: (itemId: string, newQty: number) => void;
@@ -177,6 +178,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     };
   };
 
+  const addItem = (item: any) => {
+    setItems(prev => {
+      const existing = prev.find(i => (item.menuItemId && i.menuItemId === item.menuItemId) || (item.id && i.id === item.id));
+      if (existing) {
+        return prev.map(i => i.id === existing.id ? { ...i, quantity: i.quantity + (item.quantity || 1) } : i);
+      }
+      const newItem: CartItem = {
+        id: item.id || `item_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        menuItemId: item.menuItemId || item.id || 'item',
+        name: item.name || 'GoDuet Item',
+        price: item.price || 0,
+        quantity: item.quantity || 1,
+        type: item.type || 'veg',
+        restaurantId: item.restaurantId,
+        restaurantName: item.restaurantName,
+        isFreshItem: !!item.isFreshItem,
+        freshProductId: item.freshProductId,
+        image: item.image,
+        specialInstructions: item.specialInstructions
+      };
+      return [...prev, newItem];
+    });
+  };
+
   const addFreshItem = (product: FreshProduct, quantity = 1) => {
     setItems(prev => {
       const existing = prev.find(i => i.isFreshItem && i.freshProductId === product.id);
@@ -305,6 +330,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         needCutlery,
         deliveryNotes,
         bill,
+        addItem,
         addMenuItem,
         addFreshItem,
         updateQuantity,

@@ -59,7 +59,7 @@ function DashboardContent() {
     verifyStudent
   } = useAuth();
 
-  const { addItem } = useCart();
+  const { addItem, addMenuItem, addFreshItem } = useCart();
   const toast = useToast();
 
   const [activeTab, setActiveTab] = useState<DashboardTab>(initialTab);
@@ -162,8 +162,17 @@ function DashboardContent() {
 
   // Reorder helper
   const handleReorder = (order: typeof orders[0]) => {
-    order.items.forEach((item) => addItem(item));
-    toast.success(`Added ${order.items.length} items to your cart`);
+    order.items.forEach((item) => {
+      if (item.isFreshItem) {
+        const freshProd = FRESH_PRODUCTS_DATA.find((p) => p.id === item.freshProductId || p.id === item.menuItemId);
+        if (freshProd) addFreshItem(freshProd, item.quantity);
+      } else {
+        const rest = RESTAURANTS_DATA.find((r) => r.id === item.restaurantId);
+        const menuItem = rest?.menu.find((m) => m.id === item.menuItemId);
+        if (rest && menuItem) addMenuItem(menuItem, rest);
+      }
+    });
+    toast.success(`Added items to your cart`);
     router.push('/cart');
   };
 
@@ -926,16 +935,7 @@ function DashboardContent() {
                       </div>
                       <button
                         onClick={() => {
-                          addItem({
-                            menuItemId: item.id,
-                            name: item.name,
-                            price: item.price,
-                            quantity: 1,
-                            type: 'veg',
-                            isFreshItem: true,
-                            freshProductId: item.id,
-                            image: item.image
-                          });
+                          addFreshItem(item, 1);
                           toast.success(`Added ${item.name} to cart`);
                         }}
                         className="w-full py-2 rounded-xl bg-[#2D8A4E] text-white text-xs font-bold hover:bg-emerald-700 transition-colors"
