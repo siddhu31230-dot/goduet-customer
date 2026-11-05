@@ -1,26 +1,189 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --primary-teal: #197F83;
+    --primary-teal-dark: #125e61;
+    --primary-teal-light: #e8f4f3;
+    --primary-teal-border: #a1cecb;
+    --secondary-charcoal: #555653;
+    --secondary-charcoal-dark: #2c2d2b;
+    --mint-bg: #C3DCD7;
+    --mint-soft: #d9ebe7;
+    --mint-light: #f0f7f6;
+    --warm-offwhite: #fafcfb;
+    --accent-coral: #e06d53;
+    --accent-gold: #e5a93c;
+    --fresh-green: #2D8A4E;
+    --fresh-green-light: #ebf7ef;
+
+    --bg-page: #fafcfb;
+    --text-primary: #2c2d2b;
+    --text-secondary: #555653;
+    --card-bg: #ffffff;
+    --card-border: rgba(195, 220, 215, 0.6);
+  }
+
+  .dark {
+    --primary-teal: #22a2a7;
+    --primary-teal-dark: #197F83;
+    --primary-teal-light: #182c2b;
+    --primary-teal-border: #244644;
+    --secondary-charcoal: #a8a9a6;
+    --secondary-charcoal-dark: #e0e1de;
+    --mint-bg: #1c2b29;
+    --mint-soft: #162422;
+    --mint-light: #101c1a;
+    --warm-offwhite: #0e1615;
+    --accent-coral: #f17f67;
+    --accent-gold: #f2ba54;
+    --fresh-green: #38a860;
+    --fresh-green-light: #14281c;
+
+    --bg-page: #0d1413;
+    --text-primary: #f2f5f4;
+    --text-secondary: #a8b2b0;
+    --card-bg: #141e1d;
+    --card-border: rgba(36, 70, 68, 0.7);
+  }
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Custom utility classes matching the exact brand identity */
+.bg-brand-teal {
+  background-color: #197F83;
+}
+.bg-brand-teal-dark {
+  background-color: #125e61;
+}
+.bg-brand-teal-light {
+  background-color: #e8f4f3;
+}
+.text-brand-teal {
+  color: #197F83;
+}
+.text-brand-teal-dark {
+  color: #125e61;
+}
+.border-brand-teal {
+  border-color: #197F83;
+}
+.border-brand-teal-light {
+  border-color: #C3DCD7;
+}
+
+.bg-brand-charcoal {
+  background-color: #555653;
+}
+.text-brand-charcoal {
+  color: #555653;
+}
+.text-brand-charcoal-dark {
+  color: #2c2d2b;
+}
+
+.bg-brand-mint {
+  background-color: #C3DCD7;
+}
+.bg-brand-mint-soft {
+  background-color: #d9ebe7;
+}
+.bg-brand-mint-light {
+  background-color: #f0f7f6;
+}
+
+.bg-brand-warm {
+  background-color: #fafcfb;
+}
+
+.bg-brand-fresh {
+  background-color: #2D8A4E;
+}
+.text-brand-fresh {
+  color: #2D8A4E;
+}
+
+/* Glassmorphism & premium UI accents */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(195, 220, 215, 0.5);
+}
+
+.dark .glass-nav {
+  background: rgba(13, 20, 19, 0.90);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(36, 70, 68, 0.6);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(195, 220, 215, 0.55);
+}
+
+.dark .glass-card {
+  background: rgba(20, 30, 29, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(36, 70, 68, 0.6);
+}
+
+.duet-gradient {
+  background: linear-gradient(135deg, #197F83 0%, #125e61 100%);
+}
+
+.mint-gradient {
+  background: linear-gradient(135deg, #d9ebe7 0%, #C3DCD7 100%);
+}
+
+.hero-gradient {
+  background: radial-gradient(circle at 10% 20%, #d9ebe7 0%, #fafcfb 70%);
+}
+
+.dark .hero-gradient {
+  background: radial-gradient(circle at 10% 20%, #162422 0%, #0d1413 70%);
+}
+
+/* Pulse animation for duet connector */
+@keyframes duetPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+.duet-pulse {
+  animation: duetPulse 2.5s infinite ease-in-out;
+}
+
+/* Smooth custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f0f7f6;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #141e1d;
+}
+::-webkit-scrollbar-thumb {
+  background: #C3DCD7;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #197F83;
 }
