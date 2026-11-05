@@ -5,8 +5,8 @@
 
 import { z } from 'zod';
 
-// Regex for E.164 and Indian mobile numbers
-const INDIAN_PHONE_REGEX = /^(\+91[\-\s]?)?[6789]\d{9}$/;
+// Regex for Indian mobile numbers (supports optional +91, spaces, hyphens)
+const INDIAN_PHONE_REGEX = /^(\+91[\-\s]?)?[6789][0-9\s\-]{8,12}$/;
 
 // Password complexity: Min 8 chars, 1 lowercase, 1 uppercase, 1 digit, 1 special char
 const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^~_+=<>]).{8,64}$/;

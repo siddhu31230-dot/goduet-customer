@@ -197,13 +197,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, channel: 'sms' })
+        body: JSON.stringify({ identifier: phone })
       });
       const data = await res.json();
       if (!res.ok) {
         return { success: false, message: data.error || 'Failed to send OTP' };
       }
-      return { success: true, message: data.message, otp: data.debugOtp };
+      return { success: true, message: data.message, otp: data.demoOtpCode };
     } catch {
       return { success: true, message: 'OTP sent successfully (Simulated)', otp: '123456' };
     }
@@ -214,7 +214,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch('/api/auth/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, otp })
+        body: JSON.stringify({ identifier: phone, otp })
       });
       const data = await res.json();
       if (!res.ok) {
