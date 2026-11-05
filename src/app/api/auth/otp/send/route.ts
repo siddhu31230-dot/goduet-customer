@@ -3,6 +3,7 @@ import { OtpSendInputSchema } from '@/lib/security/validator';
 import { generateSecureOtp } from '@/lib/security/auth';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
 import { recordAuditLog } from '@/lib/security/auditLogger';
+import { sendOtpViaFast2SMS } from '@/lib/sms/fast2sms';
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,12 +33,15 @@ export async function POST(req: NextRequest) {
     // 3. Cryptographic OTP Generation (6 digits, randomInt)
     const { otp, expiresAt } = generateSecureOtp(identifier);
 
+    // Fast2SMS Gateway Architecture (safely runs in simulation mode by default)
+    const smsResult = await sendOtpViaFast2SMS(identifier, otp);
+
     // 4. Audit Log OTP Request
     recordAuditLog({
       action: 'AUTH_OTP_SENT',
       ipAddress: ip,
       status: 'SUCCESS',
-      details: { identifierMasked: identifier.slice(0, 4) + '••••' }
+      details: { identifierMasked: identifier.slice(0, 4) + '••••', smsStatus: smsResult.statusText }
     });
 
     // In production, dispatch via SMS gateway (Twilio / Gupshup) or SendGrid
