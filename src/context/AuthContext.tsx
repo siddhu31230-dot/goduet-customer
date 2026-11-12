@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, UserAddress, Order } from '@/types';
+import { supabase, isSupabaseLiveConfigured } from '@/lib/supabase/client';
 
 interface AuthContextType {
   user: User | null;
@@ -173,6 +174,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const loginWithPassword = async (email: string, pass: string): Promise<{ success: boolean; message?: string }> => {
+    // 1. If Supabase is live configured, authenticate via Supabase Auth
+    if (isSupabaseLiveConfigured()) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password: pass
+        });
+        if (error) {
+          return { success: false, message: error.message };
+        }
+        const fullName = data.user?.user_metadata?.full_name || email.split('@')[0];
+        login(email, fullName);
+        return { success: true };
+      } catch (err: any) {
+        return { success: false, message: err?.message || 'Supabase authentication failed' };
+      }
+    }
+
+    // 2. Fallback to local high-security API endpoint
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -193,6 +213,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const sendOtp = async (phone: string): Promise<{ success: boolean; message?: string; otp?: string }> => {
+    // 1. If Supabase is live configured, dispatch OTP via Supabase Auth
+    if (isSupabaseLiveConfigured()) {
+      try {
+        const { error } = await supabase.auth.signInWithOtp({
+          phone
+        });
+        if (error) {
+          return { success: false, message: error.message };
+        }
+        return { success: true, message: `Verification code dispatched to ${phone}` };
+      } catch (err: any) {
+        return { success: false, message: err?.message || 'Failed to dispatch OTP via Supabase' };
+      }
+    }
+
+    // 2. Fallback to local security API endpoint
     try {
       const res = await fetch('/api/auth/otp/send', {
         method: 'POST',
@@ -210,6 +246,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const verifyOtp = async (phone: string, otp: string): Promise<{ success: boolean; message?: string }> => {
+    // 1. If Supabase is live configured, verify token via Supabase Auth
+    if (isSupabaseLiveConfigured()) {
+      try {
+        const { data, error } = await supabase.auth.verifyOtp({
+          phone,
+          token: otp,
+          type: 'sms'
+        });
+        if (error) {
+          return { success: false, message: error.message };
+        }
+        const fullName = data.user?.user_metadata?.full_name || 'Hyderabad Foodie';
+        login(phone, fullName);
+        return { success: true };
+      } catch (err: any) {
+        return { success: false, message: err?.message || 'OTP verification failed via Supabase' };
+      }
+    }
+
+    // 2. Fallback to local security API endpoint
     try {
       const res = await fetch('/api/auth/otp/verify', {
         method: 'POST',
@@ -229,6 +285,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const registerUser = async (name: string, email: string, phone: string, pass: string): Promise<{ success: boolean; message?: string }> => {
+    // 1. If Supabase is live configured, register user via Supabase Auth
+    if (isSupabaseLiveConfigured()) {
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password: pass,
+          options: {
+            data: {
+              full_name: name,
+              phone,
+              city: 'Hyderabad',
+              role: 'customer'
+            }
+          }
+        });
+        if (error) {
+          return { success: false, message: error.message };
+        }
+        login(email, name);
+        return { success: true };
+      } catch (err: any) {
+        return { success: false, message: err?.message || 'Supabase registration failed' };
+      }
+    }
+
+    // 2. Fallback to local security API endpoint
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
@@ -248,6 +330,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    if (isSupabaseLiveConfigured()) {
+      supabase.auth.signOut().catch(() => {});
+    }
     setUser(null);
     try {
       localStorage.removeItem('goduet_user');

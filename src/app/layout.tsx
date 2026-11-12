@@ -1,6 +1,17 @@
 import React, { Suspense } from 'react';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#197F83' },
+    { media: '(prefers-color-scheme: dark)', color: '#0d1413' },
+  ],
+};
 import { LocationProvider } from '@/context/LocationContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
@@ -61,7 +72,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full antialiased font-sans">
-      <body className="min-h-full flex flex-col bg-[#fafcfb] dark:bg-[#0d1413] text-[#2c2d2b] dark:text-[#f2f5f4] selection:bg-[#C3DCD7] selection:text-[#197F83] pb-16 md:pb-0">
+      <body className="min-h-full min-h-[100dvh] flex flex-col bg-[#fafcfb] dark:bg-[#0d1413] text-[#2c2d2b] dark:text-[#f2f5f4] selection:bg-[#C3DCD7] selection:text-[#197F83] pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
         <ToastProvider>
           <LocationProvider>
             <AuthProvider>
